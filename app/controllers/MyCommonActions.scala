@@ -47,7 +47,7 @@ trait MyCommonActions {
       if (request.roles.containsSlice(roles)) {
         None
       } else {
-        Some(Forbidden)
+        Some(Unauthorized)
       }
     }
   }

@@ -4,5 +4,6 @@
 
 # Pages
 GET     /                           controllers.ApplicationController.index
-GET     /example                    controllers.ApplicationController.example
+GET     /exampleSuccess             controllers.ApplicationController.exampleSuccess
+GET     /exampleError               controllers.ApplicationController.exampleError
 

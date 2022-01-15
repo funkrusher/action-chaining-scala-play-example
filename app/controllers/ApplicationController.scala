@@ -16,13 +16,26 @@ class ApplicationController @Inject()(
     }
 
     /**
-     * Returns the example page as HTML ('/example').
+     * Should return success, as the user has the "manager" role.
      *
      * @return Example page.
      */
-    def example = AuthenticatedAction.andThen(AuthorizedAction(Seq("manager"))) { request =>
+    def exampleSuccess = AuthenticatedAction.andThen(AuthorizedAction(Seq("manager"))) { request =>
         Authorized(request, Seq("manager")) {
-            Ok(views.html.example())
+            Ok("success")
+        } otherwise {
+            Unauthorized
+        }
+    }
+
+    /**
+     * Should return Unauthorized, as the user does not have the "collaborator" role.
+     *
+     * @return Example page.
+     */
+    def exampleError = AuthenticatedAction.andThen(AuthorizedAction(Seq("collaborator"))) { request =>
+        Authorized(request, Seq("collaborator")) {
+            Ok("success")
         } otherwise {
             Unauthorized
         }

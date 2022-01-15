@@ -9,5 +9,5 @@ lazy val root = (project in file("."))
 libraryDependencies ++= Seq(
     jdbc,
     ws,
-    "com.google.inject" % "guice" % "5.0.1"
+    guice
 )
