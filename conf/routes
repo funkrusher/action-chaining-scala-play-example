@@ -1,0 +1,8 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Pages
+GET     /                           controllers.ApplicationController.index
+GET     /example                    controllers.ApplicationController.example
+
