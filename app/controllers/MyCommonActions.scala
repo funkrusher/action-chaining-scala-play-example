@@ -18,7 +18,10 @@ trait MyCommonActions {
   @Inject() private var as: AuthService = _
   lazy val authService: AuthService = as
 
-  object AuthenticatedAction extends ActionBuilder[AuthenticatedRequest, AnyContent] {
+  val AuthActionRoleJi = AuthAction.andThen(AuthorizedRoleStartsWithAction("ji"))
+  val AuthActionRoleExternal = AuthAction.andThen(AuthorizedRoleStartsWithAction("external"))
+
+  object AuthAction extends ActionBuilder[AuthenticatedRequest, AnyContent] {
 
     override def parser: BodyParser[AnyContent] = self.parse.default
 
@@ -35,14 +38,15 @@ trait MyCommonActions {
       val foundRoles = Seq("master", "manager")
       block(AuthenticatedRequest(test, foundRoles, request))
     }
-
   }
 
 
-  case class AuthorizedAction(roles: Seq[String]) extends ActionFilter[AuthenticatedRequest] {
+  case class AuthorizedOneOfAction(roles: Seq[String]) extends ActionFilter[AuthenticatedRequest] {
+    def this(param : (String), params: (String)*) = this(param +: params)
+
     override protected def executionContext: ExecutionContext = self.defaultExecutionContext
 
-    override protected def filter[A](request: AuthenticatedRequest[A]) = Future.successful {
+    override protected def filter[A](request: AuthenticatedRequest[A]): Future[Option[Status]] = Future.successful {
       // check if the given roles are fulfilled by the roles of the request.
       if (request.roles.containsSlice(roles)) {
         None
@@ -51,5 +55,23 @@ trait MyCommonActions {
       }
     }
   }
+
+  object AuthorizedOneOfAction {
+    def apply(param : (String), params: (String)*) = new AuthorizedOneOfAction(param +: params)
+  }
+
+  case class AuthorizedRoleStartsWithAction(indicator: String) extends ActionFilter[AuthenticatedRequest] {
+    override protected def executionContext: ExecutionContext = self.defaultExecutionContext
+
+    override protected def filter[A](request: AuthenticatedRequest[A]): Future[Option[Status]] = Future.successful {
+      // check if the given roles are fulfilled by the roles of the request.
+      if (request.roles.find(x => x.startsWith(indicator)).isDefined) {
+        None
+      } else {
+        Some(Unauthorized)
+      }
+    }
+  }
+
 
 }
